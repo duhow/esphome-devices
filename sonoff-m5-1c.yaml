@@ -1,0 +1,68 @@
+substitutions:
+  name: Sonoff M5 1C
+
+esphome:
+  name: ${name}
+  # Automatically add the mac address to the name
+  # so you can use a single firmware for all devices
+  name_add_mac_suffix: true
+
+  # This will allow for (future) project identification,
+  # configuration and updates.
+  project:
+    name: duhow.sonoff-m5-1c
+    version: "1.0"
+
+esp32:
+  board: esp32dev
+  framework:
+    type: esp-idf
+
+# To be able to get logs from the device via serial and api.
+logger:
+
+# API is a requirement of the dashboard import.
+api:
+
+# OTA is required for Over-the-Air updating
+ota:
+
+# This should point to the public location of this yaml file.
+dashboard_import:
+  package_import_url: github://duhow/esphome-devices/sonoff-m5-1c.yaml@main
+
+light:
+- platform: status_led
+  name: LED
+  id: led
+  pin:
+    number: 5
+    inverted: true
+  internal: true
+  restore_mode: RESTORE_AND_OFF
+
+switch:
+- platform: gpio
+  name: Relay 1
+  id: relay_1
+  pin: 23
+
+binary_sensor:
+  - platform: gpio
+    name: Button
+    id: button
+    icon: mdi:button-pointer
+    pin:
+      number: 0
+      inverted: true
+      mode:
+        input: true
+        pullup: true
+    on_press:
+      then:
+        - light.turn_on: led
+        - switch.turn_on: relay_1
+    on_release:
+      then:
+        - light.turn_off: led
+        - switch.turn_off: relay_1
